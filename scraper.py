@@ -12,6 +12,16 @@ from collections import deque
 from pathlib import Path
 
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        # logging.FileHandler("log.txt"),
+        logging.StreamHandler()
+    ]
+)
+
+
 REQUEST_DELAY_SECONDS = 10
 
 MAX_CARS_HISTORY = 100_000
