@@ -4,7 +4,7 @@ import urllib.request
 from time import sleep
 import json
 from datetime import datetime
-import re
+import logging
 import os
 import pandas as pd
 import uuid
@@ -40,7 +40,7 @@ BASE_URL = 'https://www.autoscout24.de/lst?sort=age&desc=1&ustate=N%2CU&size=20&
 for folder in FOLDERS:
     if not os.path.isdir(folder):
         os.mkdir(folder)
-        print(folder, "created.")
+        logging.info(folder, "created.")
     else:
         pass
 
@@ -58,7 +58,7 @@ def get_results_page(page_num, country='Deutschland'):
 
         result = BeautifulSoup(urllib.request.urlopen(url).read(), 'lxml')
     except Exception as e:
-        print("Error: " + str(e) + " " * 50, end="\r")
+        logging.error("Error: " + str(e) + " " * 50, end="\r")
         result = None
     return result
 
@@ -154,7 +154,7 @@ def scrape_offers(max_page=20):
         # will help to track now long articles stay available
         total_cars.extend(cars)
 
-        print(f'Page: {page} | new cars: {len(page_new_cars)} | total cars: {len(total_cars)}')
+        logging.info(f'Page: {page} | new cars: {len(page_new_cars)} | total cars: {len(total_cars)}')
 
         sleep(REQUEST_DELAY_SECONDS)
 
