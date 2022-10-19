@@ -34,7 +34,7 @@ PATH_TO_SAVED_CARS_IDS = Path(VISITED_PATH) / 'car_ids.json'
 
 COUNTRIES = {"Germany": "D"}
 
-BASE_URL = 'https://www.autoscout24.de/lst?sort=age&desc=1&ustate=N%2CU&size=20&page='
+BASE_URL = 'https://www.autoscout24.de/lst?sort=age&desc=1&ustate=N%2CU&size=20&zipr=300&zip=Hamburg&page='
 
 
 for folder in FOLDERS:
@@ -136,7 +136,7 @@ def parse_article(article: bs4.Tag):
 
 def scrape_offers(max_page=20):
 
-    new_cars = []
+    total_cars = []
 
     with open(PATH_TO_SAVED_CARS_IDS) as f:
         processed_ids = deque(list(json.load(f)), maxlen=MAX_CARS_HISTORY)
@@ -145,20 +145,23 @@ def scrape_offers(max_page=20):
         response = get_results_page(page, country='Germany')
         cars = quick_parse_page_response(response)
 
-        page_new_cars = [c for c in cars if c['uuid'] not in processed_ids]
+        for c in cars:
+            c['is_new'] = c['uuid'] not in processed_ids
+
+        page_new_cars = [c for c in cars if c['is_new'] is True]
 
         # saving all, will filter out duplicates later
         # will help to track now long articles stay available
-        new_cars.extend(cars)
+        total_cars.extend(cars)
 
-        print(f'Page: {page} | new cars: {len(page_new_cars)} | total cars: {len(new_cars)}')
+        print(f'Page: {page} | new cars: {len(page_new_cars)} | total cars: {len(total_cars)}')
 
         sleep(REQUEST_DELAY_SECONDS)
 
     archive_file_path = Path(STORAGE_PATH) / f"{datetime.now().strftime('%d%m%y_%H%M%S')}.csv"
-    pd.DataFrame(new_cars).to_csv(archive_file_path, index=False)
+    pd.DataFrame(total_cars).to_csv(archive_file_path, index=False)
 
-    processed_ids.extend([c['uuid'] for c in new_cars])
+    processed_ids.extend([c['uuid'] for c in total_cars if c['is_new'] is True])
 
     with open(PATH_TO_SAVED_CARS_IDS, "w") as f:
         json.dump(list(processed_ids), f)
