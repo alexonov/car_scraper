@@ -151,7 +151,7 @@ def scrape_offers(max_page=20):
         # will help to track now long articles stay available
         new_cars.extend(cars)
 
-        print(f'Page: {page} | new cars: {len(page_new_cars)} | total new cars: {len(new_cars)}')
+        print(f'Page: {page} | new cars: {len(page_new_cars)} | total cars: {len(new_cars)}')
 
         sleep(REQUEST_DELAY_SECONDS)
 
